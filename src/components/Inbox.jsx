@@ -23,10 +23,12 @@ const Inbox = () => {
   const updateTimeoutRef = useRef(null); // 更新定时器
   const deletingBlocksRef = useRef(new Set()); // 正在删除的块集合
 
-  // 获取所有块
-  const fetchBlocks = async () => {
+  // 获取所有块 (showLoading: 是否显示加载状态，默认为true)
+  const fetchBlocks = async (showLoading = true) => {
     try {
-      setIsLoading(true);
+      if (showLoading) {
+        setIsLoading(true);
+      }
       const data = await getBlocks(user.$id);
       setBlocks(data);
       setError("");
@@ -34,7 +36,9 @@ const Inbox = () => {
       setError("获取数据失败: " + err.message);
       console.error("获取块失败:", err);
     } finally {
-      setIsLoading(false);
+      if (showLoading) {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -102,11 +106,12 @@ const Inbox = () => {
     }
   }, [user]);
 
-  // 页面可见时刷新数据，确保数据是最新的
+  // 页面可见时静默刷新数据，确保数据是最新的
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === "visible" && user) {
-        fetchBlocks();
+        // 静默刷新，不显示加载状态
+        fetchBlocks(false);
       }
     };
 
